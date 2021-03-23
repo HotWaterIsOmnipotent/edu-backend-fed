@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Layout from '@/layout/index.vue'
+import store from '@/store'
 
 Vue.use(VueRouter)
 
@@ -13,6 +14,9 @@ const routes: Array<RouteConfig> = [
   {
     path: '/',
     component: Layout,
+    meta: {
+      requiresAuth: true
+    },
     children: [
       {
         path: '', // 默认子路由
@@ -54,7 +58,6 @@ const routes: Array<RouteConfig> = [
         name: 'advert-space',
         component: () => import(/* webpackChunkName: 'advert-space' */ '@/views/advert-space/index.vue')
       }
-
     ]
   },
   {
@@ -66,6 +69,25 @@ const routes: Array<RouteConfig> = [
 
 const router = new VueRouter({
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  // 如果要前往的当前路由或者其父路由需要登录
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // 如果未登录
+    if (!store.state.user) {
+      next({
+        name: 'login',
+        query: {
+          redirect: to.fullPath
+        }
+      })
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
 })
 
 export default router

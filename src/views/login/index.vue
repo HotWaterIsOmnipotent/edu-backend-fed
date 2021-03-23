@@ -79,11 +79,12 @@ export default Vue.extend({
         if (data.state !== 1) {
           this.$message.error(data.message)
         } else {
-          //    成功：跳转首页
+          // 成功：跳转首页
+          // 存储用户数据
+          this.$store.commit('setUser', data.content)
+          // 跳转到上一次的路由或'/'
+          this.$router.push(this.$route.query.redirect as string || '/')
           this.$message.success('登录成功')
-          this.$router.push({
-            name: 'home'
-          })
         }
       } catch (error) {
         console.log('登录失败', error)
